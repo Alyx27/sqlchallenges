@@ -170,16 +170,40 @@ order by name asc, payment_id desc
 
 --14
 
-select 
-title
-, sum(amount) as total
-, name
-from payment a
-left join rental b on a.rental_id = b.rental_id
-left join inventory c on b.inventory_id = c.inventory_id
-left join film d on c.film_id = d.film_id
-left join film_category e on d.film_id = e.film_id
-left join category f on e.category_id = f.category_id
-group by title
-, name
-order by name asc, total desc
+select
+name
+, title
+, total
+from
+(
+	select 
+	title
+	, sum(amount) as total
+	, name
+	from payment a
+	left join rental b on a.rental_id = b.rental_id
+	left join inventory c on b.inventory_id = c.inventory_id
+	left join film d on c.film_id = d.film_id
+	left join film_category e on d.film_id = e.film_id
+	left join category f on e.category_id = f.category_id
+	group by title
+	, name
+	) t
+group by name
+, title
+, total
+having total in (select max(total) from 
+				(select 
+	title
+	, sum(amount) as total
+	, name
+	from payment a
+	left join rental b on a.rental_id = b.rental_id
+	left join inventory c on b.inventory_id = c.inventory_id
+	left join film d on c.film_id = d.film_id
+	left join film_category e on d.film_id = e.film_id
+	left join category f on e.category_id = f.category_id
+	group by title
+	, name) t2
+	group by name)
+order by name asc
