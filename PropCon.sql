@@ -29,3 +29,20 @@ a.iso_currency
 ,  b.iso_currency
 , a.exch_rate_usd / b.exch_rate_usd
 , a.exch_date
+
+--Get the % change of the current dividends paid versus the previous dividends distributed
+
+select fsym_id
+, currency
+, p_divs_exdate
+, p_divs_pd as current_div
+, lag(p_divs_pd, 1)
+	over(order by p_divs_exdate asc) as previous_div
+, round(((p_divs_pd - lag(p_divs_pd, 1)
+	over(order by p_divs_exdate asc))
+		/	lag(p_divs_pd, 1)
+			over(order by p_divs_exdate asc) * 100),2) as pct_chg
+from fp_v2.fp_basic_dividends
+where fsym_id = 'MH33D6-R'
+order by p_divs_exdate desc
+
