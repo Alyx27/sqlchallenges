@@ -46,3 +46,25 @@ from fp_v2.fp_basic_dividends
 where fsym_id = 'MH33D6-R'
 order by p_divs_exdate desc
 
+--Get the % change in price for the exdates
+
+select 
+t1.fsym_id
+, t1.p_date
+, t1.current_price
+, t1.previous_price
+, round((((t1.current_price - t1.previous_price) / t1.previous_price) * 100),2) as pct_chg
+from (select 
+		fsym_id
+		, p_date
+		, p_price as current_price
+		, lag(p_price, 1)
+		over(order by p_date asc) as previous_price
+		from fp_v2.fp_basic_prices
+		where fsym_id = 'MH33D6-R') t1
+join (select fsym_id
+			, p_divs_exdate
+		from fp_v2.fp_basic_dividends
+		) t2
+on t1.fsym_id = t2.fsym_id and t1.p_date = t2.p_divs_exdate
+order by p_date desc
