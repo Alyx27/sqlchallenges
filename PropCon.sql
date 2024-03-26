@@ -46,7 +46,7 @@ from fp_v2.fp_basic_dividends
 where fsym_id = 'MH33D6-R'
 order by p_divs_exdate desc
 
---Get the % change in price for the exdates
+--Get the % change in price for the exdates / Replicate Price Impact column in Workstation
 
 select 
 t1.fsym_id
