@@ -68,3 +68,23 @@ join (select fsym_id
 		) t2
 on t1.fsym_id = t2.fsym_id and t1.p_date = t2.p_divs_exdate
 order by p_date desc
+
+-- Could you please confirm that each new report for specific entity will have higher report_id than previous one (i.e. report_id(fiscal period 2022)>report_id(fiscal period 2021)>report_id(fiscal period 2020)...) ?
+	
+select 
+report_id
+, factset_entity_id
+, previous_report
+, period_start_date
+, period_end_date
+, previous_date
+from (
+	select *
+	, lag(report_id, 1)
+		over (order by report_id asc) as previous_report
+	, lag(period_end_date, 1)
+		over (order by period_end_date asc) as previous_date
+	from gr_v2.gr_report 
+) as org
+where report_id < previous_report
+and period_end_date < previous_date
